@@ -1,0 +1,32 @@
+plugins {
+    id 'java'
+    id 'idea'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.7'
+}
+
+group 'top.cciradih'
+version '0.0.1'
+
+mainClassName = 'top.cciradih.tanmu.Tanmu'
+sourceCompatibility = 12
+targetCompatibility = 12
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation('com.alibaba:fastjson:1.2.9')
+    implementation('com.google.zxing:javase:3.4.0')
+    testImplementation('org.junit.jupiter:junit-jupiter:5.5.0')
+}
+
+javafx {
+    version = "12"
+    modules = [ 'javafx.controls', 'javafx.fxml' ]
+}
+
+test {
+    useJUnitPlatform()
+}
