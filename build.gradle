@@ -23,7 +23,7 @@ dependencies {
 }
 
 javafx {
-    version = "12"
+    version = '12'
     modules = ['javafx.controls', 'javafx.fxml']
 }
 
@@ -40,6 +40,8 @@ jar {
         attributes 'Main-Class': mainClassName
     }
     from {
-        configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.compileClasspath.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
     }
 }

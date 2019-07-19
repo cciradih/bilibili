@@ -30,7 +30,7 @@ class Ws {
     //|封包长度   |头部长度|协议版本|操作码     |常数       |
     //|00 00 00 29|00 10   |00 01   |00 00 00 07|00 00 00 01|
     void listen() {
-        webSocket = HttpClient.newHttpClient().newWebSocketBuilder().buildAsync(URI.create("wss://broadcastlv.chat.bilibili.com/sub"), WsListener.getInstance(controller)).join();
+        webSocket = HttpClient.newHttpClient().newWebSocketBuilder().buildAsync(URI.create("wss://" + Http.getInstance().getHost().getJSONObject("data").getString("host") + "/sub"), WsListener.getInstance(controller)).join();
         timer = new Timer();
         TimerTask timerTask = new TimerTask() {
             @Override

@@ -1,6 +1,5 @@
 package top.cciradih.tanmu;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import javafx.application.Platform;
 
@@ -36,13 +35,39 @@ final class WsListener implements WebSocket.Listener {
     public CompletionStage<?> onBinary(WebSocket webSocket, ByteBuffer data, boolean last) {
         byte[] bytes = new byte[data.remaining()];
         data.get(bytes, 0, bytes.length);
-        if (bytes[11] == 5) {
-            List<String> danmuList = getDanmuList(bytes);
-            danmuList.forEach(danmu -> {
-                checkType(JSON.parseObject(danmu));
-            });
-        }
+        System.out.println(Arrays.toString(bytes));
+//        try (
+//                FileOutputStream fileOutputStream = new FileOutputStream("test", true);
+//                BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
+//        ) {
+//            bufferedOutputStream.write(bytes);
+//            bufferedOutputStream.flush();
+//        } catch (Exception e) {
+//            System.err.println(e.getMessage());
+//        }
+
+//        byte[] bytes = new byte[data.remaining()];
+//        data.get(bytes, 0, bytes.length);
+//        if (bytes.length < 12) {
+//            return WebSocket.Listener.super.onBinary(webSocket, data, last);
+//        }
+//        if (bytes[11] == 5) {
+//            List<String> danmuList = getDanmuList(bytes);
+//            danmuList.forEach(danmu -> {
+//                try {
+//                    checkType(JSON.parseObject(danmu));
+//                } catch (Exception e) {
+//                    System.err.println(e.getMessage());
+//                }
+//            });
+//        }
         return WebSocket.Listener.super.onBinary(webSocket, data, last);
+    }
+
+    @Override
+    public void onError(WebSocket webSocket, Throwable error) {
+        error.printStackTrace();
+        WebSocket.Listener.super.onError(webSocket, error);
     }
 
     private List<String> getDanmuList(byte[] bytes) {
@@ -53,12 +78,20 @@ final class WsListener implements WebSocket.Listener {
         for (int i = 0; i < bytes.length; i++) {
             if (bytes[i] == 0) {
                 end = i;
-                danmuJson.add(new String(Arrays.copyOfRange(bytes, start, end), Charset.forName("UTF-8")));
+                try {
+                    danmuJson.add(new String(Arrays.copyOfRange(bytes, start, end), Charset.forName("UTF-8")));
+                } catch (Exception e) {
+                    System.err.println(e.getMessage());
+                }
                 i += 16;
                 start = i;
             }
         }
-        danmuJson.add(new String(Arrays.copyOfRange(bytes, start, bytes.length), Charset.forName("UTF-8")));
+        try {
+            danmuJson.add(new String(Arrays.copyOfRange(bytes, start, bytes.length), Charset.forName("UTF-8")));
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
         return danmuJson;
     }
 

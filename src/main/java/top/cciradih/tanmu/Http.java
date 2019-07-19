@@ -63,6 +63,32 @@ class Http {
         }
     }
 
+    JSONObject getRoom(String roomId) {
+        HttpRequest httpRequest = HTTP_REQUEST_BUILDER
+                .GET()
+                .uri(URI.create("https://api.live.bilibili.com/room_ex/v1/RoomNews/get?roomid=" + roomId))
+                .build();
+        try {
+            return JSON.parseObject(HTTP_CLIENT.send(httpRequest, HttpResponse.BodyHandlers.ofString()).body());
+        } catch (IOException | InterruptedException e) {
+            System.err.println(e.getMessage());
+            return null;
+        }
+    }
+
+    JSONObject getHost() {
+        HttpRequest httpRequest = HTTP_REQUEST_BUILDER
+                .GET()
+                .uri(URI.create("https://api.live.bilibili.com/room/v1/Danmu/getConf"))
+                .build();
+        try {
+            return JSON.parseObject(HTTP_CLIENT.send(httpRequest, HttpResponse.BodyHandlers.ofString()).body());
+        } catch (IOException | InterruptedException e) {
+            System.err.println(e.getMessage());
+            return null;
+        }
+    }
+
     void sendDanmu(String cookie, String message, String roomId) {
         Matcher matcher = Pattern.compile("bili_jct=(\\w+)").matcher(cookie);
         String csrfToken = "";

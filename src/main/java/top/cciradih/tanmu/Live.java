@@ -1,7 +1,7 @@
 package top.cciradih.tanmu;
 
 public enum Live {
-    ROOM_ID("5096");
+    ROOM_ID("888");
 
     private String value;
 
@@ -10,6 +10,6 @@ public enum Live {
     }
 
     public String getValue() {
-        return value;
+        return Http.getInstance().getRoom(value).getJSONObject("data").getString("roomid");
     }
 }
