@@ -3,35 +3,30 @@ package top.cciradih.tanmu;
 import com.alibaba.fastjson.JSONObject;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Tanmu extends Application {
-    private static final Cookie COOKIE = new Cookie();
-    private static final Http HTTP = new Http();
-    private static final QrCode QR_CODE = new QrCode();
-
     private boolean isLogin = false;
     private String oauthKey = "";
 
     @Override
     public void init() {
-        String cookie = COOKIE.checkFile();
-        JSONObject jsonObject = HTTP.checkLogin(cookie);
+        JSONObject jsonObject = Http.getInstance().checkLogin(Cookie.getInstance().checkFile());
         if (jsonObject.getIntValue("code") == -101) {
-            jsonObject = HTTP.getLoginUrl();
+            jsonObject = Http.getInstance().getLoginUrl();
             jsonObject = jsonObject.getJSONObject("data");
             this.oauthKey = jsonObject.getString("oauthKey");
-            String url = jsonObject.getString("url");
-            QR_CODE.generateQrCode(url);
+            QrCode.getInstance().generateQrCode(jsonObject.getString("url"));
         } else {
             this.isLogin = true;
         }
@@ -43,28 +38,36 @@ public class Tanmu extends Application {
         Pane root = fxmlLoader.load();
         Scene value = new Scene(root);
         primaryStage.setScene(value);
-        primaryStage.setAlwaysOnTop(true);
-        primaryStage.setResizable(false);
+        primaryStage.initStyle(StageStyle.UNDECORATED);
+        primaryStage.setTitle("Tanmu");
         primaryStage.show();
+        Rectangle2D rectangle2D = Screen.getPrimary().getBounds();
+        primaryStage.setY(rectangle2D.getHeight() - primaryStage.getHeight() - 30);
+        primaryStage.setX(rectangle2D.getWidth() - primaryStage.getWidth());
+
         Controller controller = fxmlLoader.getController();
         if (isLogin) {
             controller.setDanmuListVisible(true);
             controller.setDanmuInputVisible(true);
             controller.setDanmuListItems();
-            Ws ws = new Ws(controller);
-            ws.listen();
+            Ws.getInstance(controller).listen();
         } else {
             controller.setQrCodeImage();
             Timer timer = new Timer();
             TimerTask timerTask = new TimerTask() {
                 @Override
                 public void run() {
-                    JSONObject jsonObject = HTTP.getLoginInfo(oauthKey);
+                    JSONObject jsonObject = Http.getInstance().getLoginInfo(oauthKey);
                     if (jsonObject.getBooleanValue("status")) {
                         String url = jsonObject.getJSONObject("data").getString("url");
                         URI uri = URI.create(url);
                         String cookie = uri.getQuery().replace('&', ';');
-                        COOKIE.writeToFile(cookie);
+                        Cookie.getInstance().writeToFile(cookie);
+                        controller.setQrCodeVisible(false);
+                        controller.setDanmuListVisible(true);
+                        controller.setDanmuInputVisible(true);
+                        controller.setDanmuListItems();
+                        Ws.getInstance(controller).listen();
                         timer.cancel();
                         timer.purge();
                     }

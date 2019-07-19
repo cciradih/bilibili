@@ -14,8 +14,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
 public class Controller {
-    private static final Http HTTP = new Http();
-    private static final Cookie COOKIE = new Cookie();
     private static final ObservableList<String> DANMU_LIST = FXCollections.observableArrayList();
 
     @FXML
@@ -34,7 +32,7 @@ public class Controller {
         }
     }
 
-    public void setQrCodeVisible(boolean value) {
+    void setQrCodeVisible(boolean value) {
         qrCode.setVisible(value);
     }
 
@@ -53,9 +51,9 @@ public class Controller {
     @FXML
     private void onEnterPressed(KeyEvent keyEvent) {
         if (keyEvent.getCode().equals(KeyCode.ENTER)) {
-            String cookie = COOKIE.readFromFile();
+            String cookie = Cookie.getInstance().readFromFile();
             String message = danmuInput.getText();
-            HTTP.sendDanmu(cookie, message);
+            Http.getInstance().sendDanmu(cookie, message, Live.ROOM_ID.getValue());
             setDanmuInputText("");
         }
     }
@@ -64,7 +62,7 @@ public class Controller {
         danmuList.setItems(DANMU_LIST);
     }
 
-    void addDanmuListItem(String danmu){
+    void addDanmuListItem(String danmu) {
         DANMU_LIST.add(danmu);
     }
 }

@@ -8,17 +8,22 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Http {
+class Http {
     private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
-    private static final String ROOM_ID = "7685334";
+    private static final HttpRequest.Builder HTTP_REQUEST_BUILDER = HttpRequest.newBuilder();
 
-    public JSONObject checkLogin(String cookie) {
-        HttpRequest httpRequest = HttpRequest.newBuilder()
+    private Http() {
+    }
+
+    static Http getInstance() {
+        return HttpHolder.HTTP;
+    }
+
+    JSONObject checkLogin(String cookie) {
+        HttpRequest httpRequest = HTTP_REQUEST_BUILDER
                 .GET()
                 .uri(URI.create("https://api.live.bilibili.com/xlive/web-ucenter/user/get_user_info"))
                 .header("Cookie", cookie)
@@ -31,8 +36,8 @@ public class Http {
         }
     }
 
-    public JSONObject getLoginUrl() {
-        HttpRequest httpRequest = HttpRequest.newBuilder()
+    JSONObject getLoginUrl() {
+        HttpRequest httpRequest = HTTP_REQUEST_BUILDER
                 .GET()
                 .uri(URI.create("https://passport.bilibili.com/qrcode/getLoginUrl"))
                 .build();
@@ -44,8 +49,8 @@ public class Http {
         }
     }
 
-    public JSONObject getLoginInfo(String oauthKey) {
-        HttpRequest httpRequest = HttpRequest.newBuilder()
+    JSONObject getLoginInfo(String oauthKey) {
+        HttpRequest httpRequest = HTTP_REQUEST_BUILDER
                 .POST(HttpRequest.BodyPublishers.ofString("oauthKey=" + oauthKey))
                 .uri(URI.create("https://passport.bilibili.com/qrcode/getLoginInfo"))
                 .header("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
@@ -58,23 +63,26 @@ public class Http {
         }
     }
 
-    public JSONObject sendDanmu(String cookie, String message) {
+    void sendDanmu(String cookie, String message, String roomId) {
         Matcher matcher = Pattern.compile("bili_jct=(\\w+)").matcher(cookie);
         String csrfToken = "";
         if (matcher.find()) {
             csrfToken = matcher.group(1);
         }
-        HttpRequest httpRequest = HttpRequest.newBuilder()
-                .POST(HttpRequest.BodyPublishers.ofString("color=1&fontsize=1&mode=1&msg=" + message + "&rnd=1&roomid=" + ROOM_ID + "&bubble=0&csrf_token=" + csrfToken + "&csrf=" + csrfToken))
+        HttpRequest httpRequest = HTTP_REQUEST_BUILDER
+                .POST(HttpRequest.BodyPublishers.ofString("color=1&fontsize=1&mode=1&msg=" + message + "&rnd=1&roomid=" + roomId + "&bubble=0&csrf_token=" + csrfToken + "&csrf=" + csrfToken))
                 .uri(URI.create("https://api.live.bilibili.com/msg/send"))
                 .header("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
                 .header("cookie", cookie)
                 .build();
         try {
-            return JSON.parseObject(HTTP_CLIENT.send(httpRequest, HttpResponse.BodyHandlers.ofString()).body());
+            HTTP_CLIENT.send(httpRequest, HttpResponse.BodyHandlers.ofString());
         } catch (IOException | InterruptedException e) {
             System.err.println(e.getMessage());
-            return null;
         }
+    }
+
+    private static class HttpHolder {
+        private static final Http HTTP = new Http();
     }
 }

@@ -2,16 +2,22 @@ package top.cciradih.tanmu;
 
 import java.io.*;
 
-public class Cookie {
-    private static final String COOKIE = "cookie";
+class Cookie {
+    private Cookie() {
+    }
 
-    public String checkFile() {
-        String cookie = readFromFile();
-        writeToFile(cookie);
+    static Cookie getInstance() {
+        return CookieHolder.COOKIE;
+    }
+
+    String checkFile() {
+        writeToFile(readFromFile());
         return readFromFile();
     }
 
-    public void writeToFile(String cookie) {
+    private static final String COOKIE = "cookie";
+
+    void writeToFile(String cookie) {
         try (
                 FileWriter fileWriter = new FileWriter(COOKIE);
                 BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)
@@ -23,7 +29,7 @@ public class Cookie {
         }
     }
 
-    public String readFromFile() {
+    String readFromFile() {
         try (
                 FileReader fileReader = new FileReader(COOKIE);
                 BufferedReader bufferedReader = new BufferedReader(fileReader)
@@ -37,5 +43,9 @@ public class Cookie {
             System.err.println(e.getMessage());
             return "";
         }
+    }
+
+    private static class CookieHolder {
+        private static final Cookie COOKIE = new Cookie();
     }
 }
