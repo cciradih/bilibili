@@ -12,6 +12,8 @@ class Ws {
     private static final byte[] HEARTBEAT_HEAD = {0x00, 0x00, 0x00, 0, 0x00, 0x10, 0x00, 0x01, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01};
     private static final byte[] HEARTBEAT_BODY = "[object Object]".getBytes();
     private static Controller controller;
+    private static WebSocket webSocket;
+    private static Timer timer;
 
     private Ws() {
     }
@@ -28,8 +30,8 @@ class Ws {
     //|封包长度   |头部长度|协议版本|操作码     |常数       |
     //|00 00 00 29|00 10   |00 01   |00 00 00 07|00 00 00 01|
     void listen() {
-        WebSocket webSocket = HttpClient.newHttpClient().newWebSocketBuilder().buildAsync(URI.create("wss://broadcastlv.chat.bilibili.com/sub"), WsListener.getInstance(controller)).join();
-        Timer timer = new Timer();
+        webSocket = HttpClient.newHttpClient().newWebSocketBuilder().buildAsync(URI.create("wss://broadcastlv.chat.bilibili.com/sub"), WsListener.getInstance(controller)).join();
+        timer = new Timer();
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
@@ -38,6 +40,10 @@ class Ws {
             }
         };
         timer.scheduleAtFixedRate(timerTask, 0, 30 * 1000);
+    }
+
+    void stop() {
+        timer.cancel();
     }
 
     byte[] generatePacket(byte[] head, byte[] body) {

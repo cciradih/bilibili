@@ -69,11 +69,15 @@ public class Tanmu extends Application {
                         controller.setDanmuListItems();
                         Ws.getInstance(controller).listen();
                         timer.cancel();
-                        timer.purge();
                     }
                 }
             };
             timer.scheduleAtFixedRate(timerTask, 0, 3 * 1000);
         }
+    }
+
+    @Override
+    public void stop() {
+        Ws.getInstance().stop();
     }
 }
