@@ -5,6 +5,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -37,6 +38,7 @@ public class Tanmu extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/tanmu.fxml"));
         Pane root = fxmlLoader.load();
         Scene value = new Scene(root);
+        primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/icon.png")));
         primaryStage.setAlwaysOnTop(true);
         primaryStage.setScene(value);
         primaryStage.initStyle(StageStyle.UNDECORATED);
