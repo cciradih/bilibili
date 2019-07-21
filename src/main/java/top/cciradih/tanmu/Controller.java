@@ -84,7 +84,7 @@ public class Controller {
     }
 
     void addDanmuListItem(String danmu) {
-        if (DANMU_LIST.size() > 18) {
+        if (DANMU_LIST.size() > 19) {
             DANMU_LIST.remove(0);
         }
         DANMU_LIST.add(danmu);
