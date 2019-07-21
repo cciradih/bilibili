@@ -30,6 +30,12 @@ final class WsListener implements WebSocket.Listener {
     }
 
     @Override
+    public void onError(WebSocket webSocket, Throwable error) {
+        System.out.println(error.getMessage());
+        WebSocket.Listener.super.onError(webSocket, error);
+    }
+
+    @Override
     public void onOpen(WebSocket webSocket) {
         ByteBuffer byteBuffer = ByteBuffer.wrap(Ws.getInstance().generatePacket(OPEN_HEAD, OPEN_BODY));
         webSocket.sendBinary(byteBuffer, true);
@@ -45,47 +51,52 @@ final class WsListener implements WebSocket.Listener {
         int length = data.remaining();
         byte[] bytes = new byte[length];
         data.get(bytes, 0, length);
+        handleBytes(bytes);
+        return WebSocket.Listener.super.onBinary(webSocket, data, last);
+    }
+
+    private void handleBytes(byte[] bytes) {
         if (previousBytes.length != 0) {
-            byte[] bytes1 = Arrays.copyOf(previousBytes, previousBytes.length + bytes.length);
-            System.arraycopy(bytes, 0, bytes1, previousBytes.length, bytes.length);
+            byte[] currentBytes = Arrays.copyOf(previousBytes, previousBytes.length + bytes.length);
+            System.arraycopy(bytes, 0, currentBytes, previousBytes.length, bytes.length);
             previousBytes = new byte[]{};
             int operationCode = getOperationCode(bytes);
-            if (operationCode == 3) {
-                byte[] bodyBytes = getbodyBytes(bytes1);
-                int popularity = handleFourBitBytes(bodyBytes);
-                setPopularityText(popularity);
-            } else if (operationCode == 5) {
-                byte[] bodyBytes = getbodyBytes(bytes1);
-                checkType(JSON.parseObject(new String(bodyBytes, Charset.forName("UTF-8"))));
-            }
+            chooseOperation(operationCode, currentBytes);
         } else {
             int operationCode = getOperationCode(bytes);
-            if (operationCode == 8) {
-                setRoomIdText(Live.ROOM_ID.getShortId());
-            } else if (operationCode == 3) {
+            chooseOperation(operationCode, bytes);
+        }
+    }
+
+    private void chooseOperation(int operationCode, byte[] bytes) {
+        if (operationCode == 8) {
+            setRoomIdText(Live.ROOM_ID.getShortId());
+        } else if (operationCode == 3) {
+            byte[] bodyBytes = getbodyBytes(bytes);
+            int popularity = handleFourBitBytes(bodyBytes);
+            setPopularityText(popularity);
+        } else if (operationCode == 5) {
+            readBodyBytes(bytes);
+        }
+    }
+
+    private void readBodyBytes(byte[] bytes) {
+        boolean hasMore = true;
+        while (hasMore) {
+            int packetLength = getPacketLength(bytes);
+            if (bytes.length > packetLength) {
                 byte[] bodyBytes = getbodyBytes(bytes);
-                int popularity = handleFourBitBytes(bodyBytes);
-                setPopularityText(popularity);
-            } else if (operationCode == 5) {
-                boolean hasMore = true;
-                while (hasMore) {
-                    int packetLength = getPacketLength(bytes);
-                    if (bytes.length > packetLength) {
-                        byte[] bodyBytes = getbodyBytes(bytes);
-                        checkType(JSON.parseObject(new String(bodyBytes, Charset.forName("UTF-8"))));
-                        bytes = Arrays.copyOfRange(bytes, packetLength, bytes.length);
-                    } else if (bytes.length < packetLength) {
-                        previousBytes = Arrays.copyOfRange(bytes, 0, bytes.length);
-                        hasMore = false;
-                    } else {
-                        byte[] bodyBytes = getbodyBytes(bytes);
-                        checkType(JSON.parseObject(new String(bodyBytes, Charset.forName("UTF-8"))));
-                        hasMore = false;
-                    }
-                }
+                checkType(JSON.parseObject(new String(bodyBytes, Charset.forName("UTF-8"))));
+                bytes = Arrays.copyOfRange(bytes, packetLength, bytes.length);
+            } else if (bytes.length < packetLength) {
+                previousBytes = Arrays.copyOfRange(bytes, 0, bytes.length);
+                hasMore = false;
+            } else {
+                byte[] bodyBytes = getbodyBytes(bytes);
+                checkType(JSON.parseObject(new String(bodyBytes, Charset.forName("UTF-8"))));
+                hasMore = false;
             }
         }
-        return WebSocket.Listener.super.onBinary(webSocket, data, last);
     }
 
     private int getPacketLength(byte[] bytes) {
@@ -119,7 +130,7 @@ final class WsListener implements WebSocket.Listener {
         int i = (fourBitBytes[0] & 0xff) << 24;
         i |= (fourBitBytes[1] & 0xff) << 16;
         i |= (fourBitBytes[2] & 0xff) << 8;
-        return i |= fourBitBytes[3] & 0xff;
+        return i | fourBitBytes[3] & 0xff;
     }
 
     private int handleTwoBitBytes(byte[] twoBitBytes) {
