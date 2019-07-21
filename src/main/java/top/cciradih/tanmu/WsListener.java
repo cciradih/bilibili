@@ -42,40 +42,45 @@ final class WsListener implements WebSocket.Listener {
     //|00 00 00 29|00 10   |00 00   |00 00 00 07|00 00 00 00|
     @Override
     public CompletionStage<?> onBinary(WebSocket webSocket, ByteBuffer data, boolean last) {
+        int length = data.remaining();
+        byte[] bytes = new byte[length];
+        data.get(bytes, 0, length);
         if (previousBytes.length != 0) {
-            int length = data.remaining();
-            byte[] bytes = new byte[length];
-            data.get(bytes, 0, length);
             byte[] bytes1 = Arrays.copyOf(previousBytes, previousBytes.length + bytes.length);
             System.arraycopy(bytes, 0, bytes1, previousBytes.length, bytes.length);
-            byte[] bodyBytes = getbodyBytes(bytes1);
-            checkType(JSON.parseObject(new String(bodyBytes, Charset.forName("UTF-8"))));
             previousBytes = new byte[]{};
+            int operationCode = getOperationCode(bytes);
+            if (operationCode == 3) {
+                byte[] bodyBytes = getbodyBytes(bytes1);
+                int popularity = handleFourBitBytes(bodyBytes);
+                setPopularityText(popularity);
+            } else if (operationCode == 5) {
+                byte[] bodyBytes = getbodyBytes(bytes1);
+                checkType(JSON.parseObject(new String(bodyBytes, Charset.forName("UTF-8"))));
+            }
         } else {
-            int length = data.remaining();
-            byte[] bytes = new byte[length];
-            data.get(bytes, 0, length);
-            boolean hasMore = true;
-            while (hasMore) {
-                int operationCode = getOperationCode(bytes);
-                if (operationCode == 8) {
-                    setRoomIdText(Live.ROOM_ID.getShortId());
-                    hasMore = false;
-                } else if (operationCode == 3) {
-                    byte[] bodyBytes = getbodyBytes(bytes);
-                    int popularity = handleFourBitBytes(bodyBytes);
-                    setPopularityText(popularity);
-                    hasMore = false;
-                } else if (operationCode == 5) {
+            int operationCode = getOperationCode(bytes);
+            if (operationCode == 8) {
+                setRoomIdText(Live.ROOM_ID.getShortId());
+            } else if (operationCode == 3) {
+                byte[] bodyBytes = getbodyBytes(bytes);
+                int popularity = handleFourBitBytes(bodyBytes);
+                setPopularityText(popularity);
+            } else if (operationCode == 5) {
+                boolean hasMore = true;
+                while (hasMore) {
                     int packetLength = getPacketLength(bytes);
                     if (bytes.length > packetLength) {
                         byte[] bodyBytes = getbodyBytes(bytes);
                         checkType(JSON.parseObject(new String(bodyBytes, Charset.forName("UTF-8"))));
                         bytes = Arrays.copyOfRange(bytes, packetLength, bytes.length);
                     } else if (bytes.length < packetLength) {
+                        System.out.println(Arrays.toString(bytes));
                         previousBytes = Arrays.copyOfRange(bytes, 0, bytes.length);
                         hasMore = false;
                     } else {
+                        byte[] bodyBytes = getbodyBytes(bytes);
+                        checkType(JSON.parseObject(new String(bodyBytes, Charset.forName("UTF-8"))));
                         hasMore = false;
                     }
                 }
