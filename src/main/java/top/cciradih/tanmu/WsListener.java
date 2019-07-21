@@ -75,7 +75,6 @@ final class WsListener implements WebSocket.Listener {
                         checkType(JSON.parseObject(new String(bodyBytes, Charset.forName("UTF-8"))));
                         bytes = Arrays.copyOfRange(bytes, packetLength, bytes.length);
                     } else if (bytes.length < packetLength) {
-                        System.out.println(Arrays.toString(bytes));
                         previousBytes = Arrays.copyOfRange(bytes, 0, bytes.length);
                         hasMore = false;
                     } else {
