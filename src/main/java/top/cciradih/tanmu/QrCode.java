@@ -14,15 +14,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 class QrCode {
-    private static final int WIDTH = 200;
-    private static final int HEIGHT = 200;
+    private static final int WIDTH = 212;
+    private static final int HEIGHT = 212;
     private static final String FORMAT = "PNG";
     private static final Path PATH = Paths.get("qrCode");
     private Map<EncodeHintType, Object> hints = new HashMap<>();
 
+    // version: ( v - 1 ) * 4 + 21
     private QrCode() {
         hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
         hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
+        hints.put(EncodeHintType.MARGIN, 0);
     }
 
     static QrCode getInstance() {

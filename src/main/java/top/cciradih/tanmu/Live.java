@@ -9,7 +9,11 @@ public enum Live {
         this.value = value;
     }
 
-    public String getValue() {
+    public String getShortId() {
+        return value;
+    }
+
+    public String getId() {
         return Http.getInstance().getRoom(value).getJSONObject("data").getString("roomid");
     }
 }

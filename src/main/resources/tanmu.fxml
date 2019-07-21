@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.Pane?>
 <Pane onKeyPressed="#onEnterPressed" prefHeight="480.0" prefWidth="270.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="top.cciradih.tanmu.Controller">
-    <ImageView fx:id="qrCode" fitHeight="200.0" fitWidth="200.0" layoutX="35.0" layoutY="140.0" visible="false" />
-    <ListView fx:id="danmuList" prefHeight="460.0" prefWidth="270.0"/>
-    <TextField fx:id="danmuInput" layoutY="460.0" prefHeight="20.0" prefWidth="270.0"/>
+    <ImageView fx:id="qrCode" fitHeight="212.0" fitWidth="212.0" layoutX="29.0" layoutY="139.0" visible="false"/>
+    <Label fx:id="popularity" prefHeight="20.0" prefWidth="135.0" visible="false"/>
+    <Label fx:id="roomId" layoutX="135.0" prefHeight="20.0" prefWidth="135.0" visible="false"/>
+    <ListView fx:id="danmuList" focusTraversable="false" layoutY="20.0" prefHeight="430.0" prefWidth="270.0"
+              visible="false"/>
+    <TextField fx:id="danmuInput" layoutY="450.0" prefHeight="30.0" prefWidth="270.0" visible="false"/>
 </Pane>

@@ -37,16 +37,19 @@ public class Tanmu extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/tanmu.fxml"));
         Pane root = fxmlLoader.load();
         Scene value = new Scene(root);
+        primaryStage.setAlwaysOnTop(true);
         primaryStage.setScene(value);
         primaryStage.initStyle(StageStyle.UNDECORATED);
         primaryStage.setTitle("Tanmu");
         primaryStage.show();
         Rectangle2D rectangle2D = Screen.getPrimary().getBounds();
-        primaryStage.setY(rectangle2D.getHeight() - primaryStage.getHeight() - 30);
+        primaryStage.setY(rectangle2D.getHeight() - primaryStage.getHeight() - 40);
         primaryStage.setX(rectangle2D.getWidth() - primaryStage.getWidth());
 
         Controller controller = fxmlLoader.getController();
         if (isLogin) {
+            controller.setPopularityVisible(true);
+            controller.setRoomIdVisible(true);
             controller.setDanmuListVisible(true);
             controller.setDanmuInputVisible(true);
             controller.setDanmuListItems();
@@ -64,6 +67,8 @@ public class Tanmu extends Application {
                         String cookie = uri.getQuery().replace('&', ';');
                         Cookie.getInstance().writeToFile(cookie);
                         controller.setQrCodeVisible(false);
+                        controller.setPopularityVisible(true);
+                        controller.setRoomIdVisible(true);
                         controller.setDanmuListVisible(true);
                         controller.setDanmuInputVisible(true);
                         controller.setDanmuListItems();

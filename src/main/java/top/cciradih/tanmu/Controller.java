@@ -3,6 +3,7 @@ package top.cciradih.tanmu;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -22,6 +23,10 @@ public class Controller {
     private ListView<String> danmuList;
     @FXML
     private TextField danmuInput;
+    @FXML
+    private Label popularity;
+    @FXML
+    private Label roomId;
 
     void setQrCodeImage() {
         try {
@@ -36,6 +41,14 @@ public class Controller {
         qrCode.setVisible(value);
     }
 
+    void setPopularityVisible(boolean value) {
+        popularity.setVisible(value);
+    }
+
+    void setRoomIdVisible(boolean value) {
+        roomId.setVisible(value);
+    }
+
     void setDanmuListVisible(boolean value) {
         danmuList.setVisible(value);
     }
@@ -48,12 +61,20 @@ public class Controller {
         danmuInput.setText(text);
     }
 
+    void setPopularityText(String text) {
+        popularity.setText(text);
+    }
+
+    void setRoomIdText(String text) {
+        roomId.setText(text);
+    }
+
     @FXML
     private void onEnterPressed(KeyEvent keyEvent) {
         if (keyEvent.getCode().equals(KeyCode.ENTER)) {
             String cookie = Cookie.getInstance().readFromFile();
             String message = danmuInput.getText();
-            Http.getInstance().sendDanmu(cookie, message, Live.ROOM_ID.getValue());
+            Http.getInstance().sendDanmu(cookie, message, Live.ROOM_ID.getId());
             setDanmuInputText("");
         }
     }
@@ -63,7 +84,7 @@ public class Controller {
     }
 
     void addDanmuListItem(String danmu) {
-        if (DANMU_LIST.size() > 19) {
+        if (DANMU_LIST.size() > 18) {
             DANMU_LIST.remove(0);
         }
         DANMU_LIST.add(danmu);
