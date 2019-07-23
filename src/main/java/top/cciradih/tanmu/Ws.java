@@ -29,6 +29,10 @@ class Ws {
 
     void listen() {
         webSocket = HttpClient.newHttpClient().newWebSocketBuilder().buildAsync(URI.create("wss://" + Http.getInstance().getHost().getJSONObject("data").getString("host") + "/sub"), WsListener.getInstance(controller)).join();
+        sendHeartbeat();
+    }
+
+    private void sendHeartbeat() {
         timer = new Timer();
         TimerTask timerTask = new TimerTask() {
             @Override

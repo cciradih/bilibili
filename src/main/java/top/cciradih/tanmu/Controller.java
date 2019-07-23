@@ -28,12 +28,13 @@ public class Controller {
     @FXML
     private Label roomId;
 
-    void setQrCodeImage() {
-        try {
-            qrCode.setImage(new Image(new FileInputStream("qrCode")));
-            qrCode.setVisible(true);
-        } catch (FileNotFoundException e) {
-            System.err.println(e.getMessage());
+    @FXML
+    private void onEnterPressed(KeyEvent keyEvent) {
+        if (keyEvent.getCode().equals(KeyCode.ENTER)) {
+            String cookie = Cookie.getInstance().readFromFile();
+            String message = danmuInput.getText();
+            Http.getInstance().sendDanmu(cookie, message, Live.ROOM_ID.getId());
+            danmuInput.clear();
         }
     }
 
@@ -57,8 +58,8 @@ public class Controller {
         danmuInput.setVisible(value);
     }
 
-    void setDanmuInputText(String text) {
-        danmuInput.setText(text);
+    void setQrCodeImage(Image image) {
+        qrCode.setImage(image);
     }
 
     void setPopularityText(String text) {
@@ -67,16 +68,6 @@ public class Controller {
 
     void setRoomIdText(String text) {
         roomId.setText(text);
-    }
-
-    @FXML
-    private void onEnterPressed(KeyEvent keyEvent) {
-        if (keyEvent.getCode().equals(KeyCode.ENTER)) {
-            String cookie = Cookie.getInstance().readFromFile();
-            String message = danmuInput.getText();
-            Http.getInstance().sendDanmu(cookie, message, Live.ROOM_ID.getId());
-            setDanmuInputText("");
-        }
     }
 
     void setDanmuListItems() {

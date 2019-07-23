@@ -15,11 +15,6 @@ final class WsListener implements WebSocket.Listener {
     private static final byte[] OPEN_HEAD = {0x00, 0x00, 0x00, 0, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x00};
     private static final byte[] OPEN_BODY = ("{\"uid\":0,\"roomid\":" + Live.ROOM_ID.getId() + "}").getBytes();
     private static Controller controller;
-    private Pipe pipe;
-
-    static WsListener getInstance() {
-        return WsListenerHolder.wsListener;
-    }
 
     private WsListener() {
     }
