@@ -36,35 +36,48 @@ image::application-main-interface.png[Application Main Interface]
 SESSDATA:: 登录认证数据
 bili_jct:: CSRF 令牌
 
-== 用户
+== HTTP
 
-=== 获取信息
+=== 用户
 
-[.lead]
+==== 获取信息
+
 判断 SESSDATA 是否有效。
 
-|===
-| 请求方式 | GET
-| 请求地址 | https://api.live.bilibili.com/xlive/web-ucenter/user/get_user_info
-| Cookie | SESSDATA
-|===
+===== HTTP Request
 
-.Http.class
-[source,java]
+[source,http]
 ----
-class Http {
-    JSONObject checkLogin(String cookie) {
-        HttpRequest httpRequest = HTTP_REQUEST_BUILDER
-                .GET()
-                .uri(URI.create("https://api.live.bilibili.com/xlive/web-ucenter/user/get_user_info"))
-                .header("Cookie", cookie)
-                .build();
-        try {
-            return JSON.parseObject(HTTP_CLIENT.send(httpRequest, HttpResponse.BodyHandlers.ofString()).body());
-        } catch (IOException | InterruptedException e) {
-            System.err.println(e.getMessage());
-            return null;
-        }
+GET /xlive/web-ucenter/user/get_user_info HTTP/1.1
+Host: api.live.bilibili.com
+Cookie: SESSDATA={SESSDATA}
+----
+
+===== HTTP Response
+
+[source,json]
+----
+{
+    "code": 0,
+    "message": "0",
+    "ttl": 1,
+    "data": {
+        "uid": 2078718,
+        "uname": "Cciradih",
+        "face": "https://i1.hdslb.com/bfs/face/8e88d34fe348d528b21462301412dfa84ac221ac.jpg",
+        "billCoin": 0.9,
+        "silver": 696,
+        "gold": 0,
+        "achieve": 255,
+        "vip": 0,
+        "svip": 0,
+        "user_level": 21,
+        "user_next_level": 22,
+        "user_intimacy": 5173584,
+        "user_next_intimacy": 8000000,
+        "is_level_top": 0,
+        "user_level_rank": ">50000",
+        "user_charged": 0
     }
 }
 ----
@@ -73,168 +86,206 @@ class Http {
 
 ==== 获取地址
 
-[.lead]
 获取的地址用于生成二维码；获取的 oauthKey 在后面用来轮询请求是否登录成功。
 
-|===
-| 请求方式 | GET
-| 请求地址 | https://passport.bilibili.com/qrcode/getLoginUrl
-|===
+===== HTTP Request
 
-.Http.class
-[source,java]
+[source,http]
 ----
-class Http {
-    JSONObject getLoginUrl() {
-        HttpRequest httpRequest = HTTP_REQUEST_BUILDER
-                .GET()
-                .uri(URI.create("https://passport.bilibili.com/qrcode/getLoginUrl"))
-                .build();
-        try {
-            return JSON.parseObject(HTTP_CLIENT.send(httpRequest, HttpResponse.BodyHandlers.ofString()).body());
-        } catch (IOException | InterruptedException e) {
-            System.err.println(e.getMessage());
-            return null;
-        }
+GET /qrcode/getLoginUrl HTTP/1.1
+Host: passport.bilibili.com
+----
+
+===== HTTP Response
+
+[source,json]
+----
+{
+    "code": 0,
+    "status": true,
+    "ts": 1563951868,
+    "data": {
+        "url": "https://passport.bilibili.com/qrcode/h5/login?oauthKey=3cd3a1a15c02939e12785f85ca6c8854",
+        "oauthKey": "3cd3a1a15c02939e12785f85ca6c8854"
     }
 }
 ----
 
 ==== 获取信息
 
-[.lead]
 使用前面获取的 oauthKey 请求是否登录成功，如果成功会得到一个地址，而这个地址里包含了有效 Cookie。
 
-|===
-| 请求方式 | POST
-| 请求地址 | https://passport.bilibili.com/qrcode/getLoginInfo
-| Content-Type | application/x-www-form-urlencoded; charset=UTF-8
-| Body | oauthKey={oauthKey}
-|===
+===== HTTP Request
 
-.Http.class
-[source,java]
+[source,http]
 ----
-class Http {
-    JSONObject getLoginInfo(String oauthKey) {
-        HttpRequest httpRequest = HTTP_REQUEST_BUILDER
-                .POST(HttpRequest.BodyPublishers.ofString("oauthKey=" + oauthKey))
-                .uri(URI.create("https://passport.bilibili.com/qrcode/getLoginInfo"))
-                .header("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
-                .build();
-        try {
-            return JSON.parseObject(HTTP_CLIENT.send(httpRequest, HttpResponse.BodyHandlers.ofString()).body());
-        } catch (IOException | InterruptedException e) {
-            System.err.println(e.getMessage());
-            return null;
-        }
-    }
+POST /qrcode/getLoginInfo HTTP/1.1
+Host: passport.bilibili.com
+Content-Type: application/x-www-form-urlencoded
+
+oauthKey%3D={oauthKey}
+----
+
+===== HTTP Response
+
+[source,json]
+----
+{
+    "code": 0,
+    "data": {
+        "url": "https://passport.biligame.com/crossDomain?DedeUserID={DedeUserID}&DedeUserID__ckMd5={DedeUserID__ckMd5}&Expires={Expires}&SESSDATA={SESSDATA}&bili_jct={bili_jct}&gourl={gourl}"
+    },
+    "status": true,
+    "ts": 1563952272
 }
 ----
 
-== 直播
+=== 直播
 
-=== 房间
+==== 获取房间真实 ID
 
-[.lead]
 直播房间有短 ID，而真实 ID 需要请求获取。
 
-|===
-| 请求方式 | GET
-| 请求地址 | https://api.live.bilibili.com/room_ex/v1/RoomNews/get?roomid={roomId}
-|===
+===== HTTP Request
 
-.Http.class
-[source,java]
+[source,http]
 ----
-class Http {
-    JSONObject getRoom(String roomId) {
-        HttpRequest httpRequest = HTTP_REQUEST_BUILDER
-                .GET()
-                .uri(URI.create("https://api.live.bilibili.com/room_ex/v1/RoomNews/get?roomid=" + roomId))
-                .build();
-        try {
-            return JSON.parseObject(HTTP_CLIENT.send(httpRequest, HttpResponse.BodyHandlers.ofString()).body());
-        } catch (IOException | InterruptedException e) {
-            System.err.println(e.getMessage());
-            return null;
-        }
+GET /room_ex/v1/RoomNews/get?roomid=1 HTTP/1.1
+Host: api.live.bilibili.com
+----
+
+===== HTTP Response
+
+[source,json]
+----
+{
+    "code": 0,
+    "msg": "ok",
+    "message": "ok",
+    "data": {
+        "roomid": "5440",
+        "uid": "9617619",
+        "content": "7月27日-7月28日，虚拟主播冰火歌合战第二季正式开始！",
+        "ctime": "2019-07-21 20:27:23",
+        "status": "0",
+        "uname": "哔哩哔哩直播"
     }
 }
 ----
+
+==== 弹幕
+
+===== 地址
+
+弹幕的接收有 CDN。
+
+====== HTTP Request
+
+[source,http]
+----
+GET /room/v1/Danmu/getConf HTTP/1.1
+Host: api.live.bilibili.com
+----
+
+====== HTTP Response
+
+[source,json]
+----
+{
+    "code": 0,
+    "msg": "ok",
+    "message": "ok",
+    "data": {
+        "refresh_row_factor": 0.125,
+        "refresh_rate": 100,
+        "max_delay": 5000,
+        "port": 2243,
+        "host": "broadcastlv.chat.bilibili.com",
+        "host_server_list": [
+            {
+                "host": "hw-bj-live-comet-04.chat.bilibili.com",
+                "port": 2243,
+                "wss_port": 443,
+                "ws_port": 2244
+            },
+            {
+                "host": "tx-sh3-live-comet-02.chat.bilibili.com",
+                "port": 2243,
+                "wss_port": 443,
+                "ws_port": 2244
+            },
+            {
+                "host": "broadcastlv.chat.bilibili.com",
+                "port": 2243,
+                "wss_port": 443,
+                "ws_port": 2244
+            }
+        ],
+        "server_list": [
+            {
+                "host": "119.3.230.113",
+                "port": 2243
+            },
+            {
+                "host": "172.81.242.32",
+                "port": 2243
+            },
+            {
+                "host": "broadcastlv.chat.bilibili.com",
+                "port": 2243
+            },
+            {
+                "host": "119.3.230.113",
+                "port": 80
+            },
+            {
+                "host": "172.81.242.32",
+                "port": 80
+            },
+            {
+                "host": "broadcastlv.chat.bilibili.com",
+                "port": 80
+            }
+        ],
+        "token": "fd_p14b6DWTP4yyqlGuq3lzKvq69q-ZKsiVmQAF7xlpIa7vBG2fslpI3Y3_1_ufrqARqviCookpSub7tLUOu4V6fYUKKHSAA"
+    }
+}
+----
+
+===== 发送
+
+发送需要 SESSDATA 和 bili_jct，返回值没有什么信息，可以忽略。
+
+====== HTTP Request
+
+[source,http]
+----
+POST /msg/send HTTP/1.1
+Host: api.live.bilibili.com
+Cookie: SESSDATA=4dd2810a,1566544272,764f8471
+Content-Type: application/x-www-form-urlencoded
+
+color=1&fontsize=1&mode=1&msg={msg}&rnd=1&roomid={roomid}&bubble=0&csrf_token={bili_jct}&csrf={bili_jct}
+----
+
+====== HTTP Response
+
+[source,json]
+----
+{
+    "code": 0,
+    "data": [],
+    "message": "",
+    "msg": ""
+}
+----
+
+== WebSocket
 
 === 弹幕
 
-==== 地址
-
-[.lead]
-直播房间有短 ID，而真实 ID 需要请求获取。
-
-|===
-| 请求方式 | GET
-| 请求地址 | https://api.live.bilibili.com/room/v1/Danmu/getConf
-|===
-
-.Http.class
-[source,java]
-----
-class Http {
-    JSONObject getHost() {
-        HttpRequest httpRequest = HTTP_REQUEST_BUILDER
-                .GET()
-                .uri(URI.create("https://api.live.bilibili.com/room/v1/Danmu/getConf"))
-                .build();
-        try {
-            return JSON.parseObject(HTTP_CLIENT.send(httpRequest, HttpResponse.BodyHandlers.ofString()).body());
-        } catch (IOException | InterruptedException e) {
-            System.err.println(e.getMessage());
-            return null;
-        }
-    }
-}
-----
-
-==== 发送
-
-[.lead]
-发送需要 SESSDATA 和 bili_jct，返回值没有什么信息，可以忽略。
-
-|===
-| 请求方式 | POST
-| 请求地址 | https://api.live.bilibili.com/msg/send
-| Cookie | SESSDATA
-| Content-Type | application/x-www-form-urlencoded; charset=UTF-8
-| Body | color=1&fontsize=1&mode=1&msg={message}&rnd=1&roomid={roomId}&bubble=0&csrf_token={bili_jct}&csrf={bili_jct}
-|===
-
-.Http.class
-[source,java]
-----
-class Http {
-    void sendDanmu(String cookie, String message, String roomId) {
-        Matcher matcher = Pattern.compile("bili_jct=(\\w+)").matcher(cookie);
-        String csrfToken = "";
-        if (matcher.find()) {
-            csrfToken = matcher.group(1);
-        }
-        HttpRequest httpRequest = HTTP_REQUEST_BUILDER
-                .POST(HttpRequest.BodyPublishers.ofString("color=1&fontsize=1&mode=1&msg=" + message + "&rnd=1&roomid=" + roomId + "&bubble=0&csrf_token=" + csrfToken + "&csrf=" + csrfToken))
-                .uri(URI.create("https://api.live.bilibili.com/msg/send"))
-                .header("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
-                .header("cookie", cookie)
-                .build();
-        try {
-            HTTP_CLIENT.send(httpRequest, HttpResponse.BodyHandlers.ofString());
-        } catch (IOException | InterruptedException e) {
-            System.err.println(e.getMessage());
-        }
-    }
-}
-----
-
 ==== 接收
 
-[.lead]
 接收弹幕使用的是 WebSocket，也是本文的重难点。
 
 [dedication]
