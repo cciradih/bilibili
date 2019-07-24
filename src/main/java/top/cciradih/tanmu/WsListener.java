@@ -6,7 +6,6 @@ import javafx.application.Platform;
 
 import java.net.http.WebSocket;
 import java.nio.ByteBuffer;
-import java.nio.channels.Pipe;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.concurrent.CompletionStage;
@@ -39,8 +38,6 @@ final class WsListener implements WebSocket.Listener {
 
     private byte[] previousBytes = new byte[]{};
 
-    //|封包长度   |头部长度|协议版本|操作码     |常数       |
-    //|00 00 00 29|00 10   |00 00   |00 00 00 07|00 00 00 00|
     @Override
     public CompletionStage<?> onBinary(WebSocket webSocket, ByteBuffer data, boolean last) {
         int length = data.remaining();
