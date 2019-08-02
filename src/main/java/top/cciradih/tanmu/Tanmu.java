@@ -46,6 +46,7 @@ public class Tanmu extends Application {
 
     private void setStage(Stage primaryStage) {
         primaryStage.initStyle(StageStyle.UNDECORATED);
+        primaryStage.setOpacity(0.5);
         primaryStage.setAlwaysOnTop(true);
         primaryStage.setTitle("Tanmu");
         primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/icon.png")));
