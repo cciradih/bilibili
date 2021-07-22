@@ -1,9 +1,8 @@
-package top.cciradih.tanmu;
+package top.cciradih.bilibili;
 
 import org.junit.jupiter.api.Test;
 
-
-class TanmuTest {
+public class BilibiliTest {
     @Test
     void test() {
     }

@@ -2,15 +2,15 @@ plugins {
     id 'java'
     id 'idea'
     id 'application'
-    id 'org.openjfx.javafxplugin' version '0.0.7'
+    id 'org.openjfx.javafxplugin' version '0.0.9'
 }
 
 group 'top.cciradih'
 version '0.0.1'
 
-mainClassName = 'top.cciradih.tanmu.Main'
-sourceCompatibility = 12
-targetCompatibility = 12
+mainClassName = 'top.cciradih.bilibili.Main'
+sourceCompatibility = 11
+targetCompatibility = 11
 
 repositories {
     mavenCentral()
@@ -23,7 +23,7 @@ dependencies {
 }
 
 javafx {
-    version = '12'
+    version = '11'
     modules = ['javafx.controls', 'javafx.fxml']
 }
 
