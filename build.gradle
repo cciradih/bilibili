@@ -17,9 +17,10 @@ repositories {
 }
 
 dependencies {
-    implementation('com.alibaba:fastjson:1.2.9')
-    implementation('com.google.zxing:javase:3.4.0')
-    testImplementation('org.junit.jupiter:junit-jupiter:5.5.0')
+    implementation 'com.alibaba:fastjson:1.2.76'
+    implementation 'com.google.zxing:javase:3.4.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
 }
 
 javafx {
