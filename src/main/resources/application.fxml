@@ -7,9 +7,9 @@
 <?import javafx.scene.layout.Pane?>
 <Pane xmlns:fx="http://javafx.com/fxml" onKeyPressed="#onEnterPressed" prefHeight="480.0" prefWidth="270.0"
       fx:controller="top.cciradih.bilibili.controller.Controller">
-    <ImageView fx:id="qrCode" fitHeight="212.0" fitWidth="212.0" layoutX="29.0" layoutY="139.0"/>
     <Label fx:id="popularity" prefHeight="20.0" prefWidth="135.0"/>
     <Label fx:id="roomId" layoutX="135.0" prefHeight="20.0" prefWidth="135.0"/>
     <ListView fx:id="danmuList" focusTraversable="false" layoutY="20.0" prefHeight="435.0" prefWidth="270.0"/>
     <TextField fx:id="danmuInput" layoutY="455.0" prefHeight="25.0" prefWidth="270.0"/>
+    <ImageView fx:id="qrCode" fitHeight="212.0" fitWidth="212.0" layoutX="29.0" layoutY="139.0"/>
 </Pane>

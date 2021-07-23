@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 public class Controller {
@@ -19,5 +20,9 @@ public class Controller {
     private TextField danmuInput;
 
     public void onEnterPressed() {
+    }
+
+    public void setQrCodeImage(Image image) {
+        this.qrCode.setImage(image);
     }
 }
